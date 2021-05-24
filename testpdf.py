@@ -70,6 +70,10 @@ fields = resolve1(network_form.catalog['AcroForm'])['Fields']
 for i in fields:
     field = resolve1(i)
     name, value = field.get('T').decode('utf-8'), field.get('V')
+    if value == None:
+        value = ""
+    else:
+        value = value.decode('utf-8')
     member_stats[str(name)] = str(value)
     print('{0}: {1}'.format(name, value))
 print(member_stats)
