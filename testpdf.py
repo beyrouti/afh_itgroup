@@ -76,7 +76,7 @@ for i in fields:
         value = value.decode('utf-8')
     member_stats[str(name)] = str(value)
     print('{0}: {1}'.format(name, value))
-print(member_stats)
+member_stats['uAfhEmail'] = member_stats['uAfhEmail'] + '@atlantafinehomes.com'
 fp.close()
 
 sql = "INSERT IGNORE INTO UserInfo (first_name, last_name, network_username, copier_code, afh_email, outside_email, mobile_number, did_number, fax_number, office_ext) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -94,4 +94,4 @@ cursor.execute(sql,val)
 mydb.commit()
 mydb.close()
 
-print("Inserted Row " + member_stats['uNetworkLogin'])
+print("Inserted Row " + member_stats['uAfhEmail'])
