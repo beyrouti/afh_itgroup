@@ -11,3 +11,4 @@ print(user1)
 # user1.update_attribute("Company","anda")
 print(user1.get_attribute("Company"))
 
+user2 = adobject.ADObject.from_dn("CN=Mace Windu,OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")

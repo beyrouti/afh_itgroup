@@ -32,6 +32,7 @@
 import sys
 import mysql.connector
 import csv
+import time
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
@@ -61,19 +62,24 @@ for i in fields:
 member_stats['uAfhEmail'] = member_stats['uAfhEmail'] + '@atlantafinehomes.com'
 fp.close()
 
+# ===========================================
 # Sets default credential information for AD
+# ===========================================
 pyad.set_defaults(ldap_server="10.0.254.3", username="asterisk", password="Shit$andwich747")
 
+# ===================
 # Set ou of new user
+# ===================
 staff_or_agent = input("New user [staff] or [agent]? : ").lower()
 office_loc = input("which office [bh],[na],[in],[co]? :").lower()
 if office_loc == "bh":
     if staff_or_agent == "staff":
         ou = "OU=BH Staff, OU=AFH Staff"
     elif staff_or_agent == "agent":
-        ou = "BH Agents, AFH Agents"
+        ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+        quit()
 elif office_loc == "na":
     if staff_or_agent == "staff":
         ou = "OU=NA Staff, OU=AFH Staff"
@@ -81,6 +87,7 @@ elif office_loc == "na":
         ou = "NA Agents, AFH Agents"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+        quit()
 elif office_loc == "in":
     if staff_or_agent == "staff":
         ou = "OU=IN Staff, OU=AFH Staff"
@@ -88,6 +95,7 @@ elif office_loc == "in":
         ou = "IN Agents, AFH Agents"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+        quit()
 elif office_loc == "co":
     if staff_or_agent == "staff":
         ou = "OU=Cobb Staff, OU=AFH Staff"
@@ -95,8 +103,28 @@ elif office_loc == "co":
         ou = "Cobb Agents, AFH Agents"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+        quit()
 else:
-    print("Sorry, looks like you spelled the office wrong, please run the program again")
+    print("Sorry, looks like you spelled the office abreviation wrong, please run the program again")
+    quit()
 
+# ===================
+# Create user in AD!
+# ===================
+new_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
+    "mail" : member_stats["uAfhEmail"],
+    "givenName" : member_stats["uName"].split(" ")[0],
+    "displayName" : member_stats["uName"],
+    "mobile" : member_stats["uCell"],
+    "sn" : member_stats['uName'].split(" ")[len(member_stats['uName'].split(" ")) -1],
+    "userPrincipalName" : member_stats["uNetworkLogin"] + "@AFH.pri",
+    "company" : "NADA",
+    "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"]
+})
+# ADD - description, office, logon script, department, Job title
+#time.sleep(5)
+#wrap in try catch...
+new_user.rename(member_stats["uName"],set_sAMAccountName=False)
+# ADD user to groups
 
-
+print(member_stats["uNetworkLogin"]+ " added Successfully")
