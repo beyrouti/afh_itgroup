@@ -38,6 +38,9 @@ from pdfminer.pdftypes import resolve1
 from pyad import *
 
 member_stats = {}
+staff_or_agent = ""
+office_loc = ""
+ou = ""
 
 # Parses the NSF data into a dictonary, member_stats, using pdfminer
 # https://stackoverflow.com/questions/3984003/how-to-extract-pdf-fields-from-a-filled-out-form-in-python
@@ -60,3 +63,40 @@ fp.close()
 
 # Sets default credential information for AD
 pyad.set_defaults(ldap_server="10.0.254.3", username="asterisk", password="Shit$andwich747")
+
+# Set ou of new user
+staff_or_agent = input("New user [staff] or [agent]? : ").lower()
+office_loc = input("which office [bh],[na],[in],[co]? :").lower()
+if office_loc == "bh":
+    if staff_or_agent == "staff":
+        ou = "OU=BH Staff, OU=AFH Staff"
+    elif staff_or_agent == "agent":
+        ou = "BH Agents, AFH Agents"
+    else:
+        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+elif office_loc == "na":
+    if staff_or_agent == "staff":
+        ou = "OU=NA Staff, OU=AFH Staff"
+    elif staff_or_agent == "agent":
+        ou = "NA Agents, AFH Agents"
+    else:
+        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+elif office_loc == "in":
+    if staff_or_agent == "staff":
+        ou = "OU=IN Staff, OU=AFH Staff"
+    elif staff_or_agent == "agent":
+        ou = "IN Agents, AFH Agents"
+    else:
+        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+elif office_loc == "co":
+    if staff_or_agent == "staff":
+        ou = "OU=Cobb Staff, OU=AFH Staff"
+    elif staff_or_agent == "agent":
+        ou = "Cobb Agents, AFH Agents"
+    else:
+        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+else:
+    print("Sorry, looks like you spelled the office wrong, please run the program again")
+
+
+
