@@ -28,6 +28,8 @@
 #    "uHomeAddress2": "",
 #    "uNightVMExt": "",
 #    "ulicenseNum": "",
+#     uFirstName,
+#     uLastName,
 
 import sys
 import mysql.connector
@@ -45,9 +47,10 @@ member_ou = ""
 officeDesc = {"bh":"Buckhead","na":"North Atlanta","in":"Intown","co":"Cobb"}
 member_groups = ["#AllAtlantaFineHomes","PowerUser","FreePBX Users"]
 logon_script = ""
-
-# Parses the NSF data into a dictonary, member_stats, using pdfminer
+# =========================================================================================================
+# Parses the NSF data into a dictonary member_stats using pdfminer
 # https://stackoverflow.com/questions/3984003/how-to-extract-pdf-fields-from-a-filled-out-form-in-python
+# =========================================================================================================
 file_name = input("Enter the file name: ")
 fp = open(file_name,'rb')
 parser = PDFParser(fp)
@@ -64,7 +67,8 @@ for i in fields:
     #print('{0}: {1}'.format(name, value))
 member_stats['uAfhEmail'] = member_stats['uAfhEmail'] + '@atlantafinehomes.com'
 fp.close()
-## split the first and last name here, add to member_stats uFirst, uLast
+member_stats["uFirstName"] = member_stats["uName"].split(" ")[0]
+member_stats["uLastName"] = member_stats['uName'].split(" ")[len(member_stats['uName'].split(" ")) -1]
 
 # ===========================================
 # Sets default credential information for AD
@@ -79,32 +83,40 @@ office_loc = input("which office [bh],[na],[in],[co]? :").lower()
 if office_loc == "bh":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
+        logon_script = "BH_STAFF.vbs"
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
+        logon_script = "BH_AGENT.vbs"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
 elif office_loc == "na":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
+        logon_script = "NA_STAFF.VBS"
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
+        logon_script = "NA_AGENT.vbs"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
 elif office_loc == "in":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
+        logon_script = "IN_STAFF.vbs"
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
+        logon_script = "IN_AGENT.vbs"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
 elif office_loc == "co":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
+        logon_script = "CB_Staff.vbs"
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
+        logon_script = "CB_AGENT.vbs"
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
@@ -117,19 +129,19 @@ else:
 # ===================
 new_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],member_ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
     "mail" : member_stats["uAfhEmail"],
-    "givenName" : member_stats["uName"].split(" ")[0],
+    "givenName" : member_stats["uFirstName"],
     "displayName" : member_stats["uName"],
-    "sn" : member_stats['uName'].split(" ")[len(member_stats['uName'].split(" ")) -1],
-    # "name" : member_stats["uName"],
+    "sn" : member_stats["uLastName"],
     "userPrincipalName" : member_stats["uNetworkLogin"] + "@AFH.pri",
     "mobile" : member_stats["uCell"],
     "company" : "NADA",
     "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"],
-    "description" : officeDesc[office_loc]
+    "description" : officeDesc[office_loc],
+    "scriptPath" : logon_script,
+    "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com"
 })
-# ADD - office, logon script, department, title
-#time.sleep(5)
-#wrap in try catch...
+# ADD - office, department
+
 try:
     new_user.rename(member_stats["uName"],set_sAMAccountName=False)
 except:
