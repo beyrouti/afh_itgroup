@@ -41,7 +41,10 @@ from pyad import *
 member_stats = {}
 staff_or_agent = ""
 office_loc = ""
-ou = ""
+member_ou = ""
+officeDesc = {"bh":"Buckhead","na":"North Atlanta","in":"Intown","co":"Cobb"}
+member_groups = ["#AllAtlantaFineHomes","PowerUser","FreePBX Users"]
+logon_script = ""
 
 # Parses the NSF data into a dictonary, member_stats, using pdfminer
 # https://stackoverflow.com/questions/3984003/how-to-extract-pdf-fields-from-a-filled-out-form-in-python
@@ -58,49 +61,50 @@ for i in fields:
     else:
         value = value.decode('utf-8')
     member_stats[str(name)] = str(value)
-    print('{0}: {1}'.format(name, value))
+    #print('{0}: {1}'.format(name, value))
 member_stats['uAfhEmail'] = member_stats['uAfhEmail'] + '@atlantafinehomes.com'
 fp.close()
+## split the first and last name here, add to member_stats uFirst, uLast
 
 # ===========================================
 # Sets default credential information for AD
 # ===========================================
 pyad.set_defaults(ldap_server="10.0.254.3", username="asterisk", password="Shit$andwich747")
 
-# ===================
-# Set ou of new user
-# ===================
+# =========================================================================================
+# Set OU and group memberships of new user based on inputs [SHOULD BE A LOOP UNTIL CORRECT]
+# =========================================================================================
 staff_or_agent = input("New user [staff] or [agent]? : ").lower()
 office_loc = input("which office [bh],[na],[in],[co]? :").lower()
 if office_loc == "bh":
     if staff_or_agent == "staff":
-        ou = "OU=BH Staff, OU=AFH Staff"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
     elif staff_or_agent == "agent":
-        ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
 elif office_loc == "na":
     if staff_or_agent == "staff":
-        ou = "OU=NA Staff, OU=AFH Staff"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
     elif staff_or_agent == "agent":
-        ou = "NA Agents, AFH Agents"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
 elif office_loc == "in":
     if staff_or_agent == "staff":
-        ou = "OU=IN Staff, OU=AFH Staff"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
     elif staff_or_agent == "agent":
-        ou = "IN Agents, AFH Agents"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
 elif office_loc == "co":
     if staff_or_agent == "staff":
-        ou = "OU=Cobb Staff, OU=AFH Staff"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
     elif staff_or_agent == "agent":
-        ou = "Cobb Agents, AFH Agents"
+        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
@@ -111,20 +115,25 @@ else:
 # ===================
 # Create user in AD!
 # ===================
-new_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
+new_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],member_ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
     "mail" : member_stats["uAfhEmail"],
     "givenName" : member_stats["uName"].split(" ")[0],
     "displayName" : member_stats["uName"],
-    "mobile" : member_stats["uCell"],
     "sn" : member_stats['uName'].split(" ")[len(member_stats['uName'].split(" ")) -1],
+    # "name" : member_stats["uName"],
     "userPrincipalName" : member_stats["uNetworkLogin"] + "@AFH.pri",
+    "mobile" : member_stats["uCell"],
     "company" : "NADA",
-    "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"]
+    "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"],
+    "description" : officeDesc[office_loc]
 })
-# ADD - description, office, logon script, department, Job title
+# ADD - office, logon script, department, title
 #time.sleep(5)
 #wrap in try catch...
-new_user.rename(member_stats["uName"],set_sAMAccountName=False)
+try:
+    new_user.rename(member_stats["uName"],set_sAMAccountName=False)
+except:
+    print(member_stats["uNetworkLogin"]+ " added successfully")
 # ADD user to groups
 
-print(member_stats["uNetworkLogin"]+ " added Successfully")
+
