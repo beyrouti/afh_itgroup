@@ -47,6 +47,7 @@ member_ou = ""
 officeDesc = {"bh":"Buckhead","na":"North Atlanta","in":"Intown","co":"Cobb"}
 member_groups = ["#AllAtlantaFineHomes","PowerUser","FreePBX Users"]
 logon_script = ""
+
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
 # https://stackoverflow.com/questions/3984003/how-to-extract-pdf-fields-from-a-filled-out-form-in-python
@@ -123,6 +124,7 @@ elif office_loc == "co":
 else:
     print("Sorry, looks like you spelled the office abreviation wrong, please run the program again")
     quit()
+    #this needs to loop back to the input prompt
 
 # ===================
 # Create user in AD!
