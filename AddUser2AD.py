@@ -45,8 +45,9 @@ staff_or_agent = ""
 office_loc = ""
 member_ou = ""
 officeDesc = {"bh":"Buckhead","na":"North Atlanta","in":"Intown","co":"Cobb"}
-member_groups = ["#AllAtlantaFineHomes","PowerUser","FreePBX Users"]
+member_groups = []
 logon_script = ""
+new_user=""
 
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
@@ -76,6 +77,38 @@ member_stats["uLastName"] = member_stats['uName'].split(" ")[len(member_stats['u
 # ===========================================
 pyad.set_defaults(ldap_server="10.0.254.3", username="asterisk", password="Shit$andwich747")
 
+# =====================
+# Create user function
+# =====================
+def createUser():
+    global member_groups
+    the_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],member_ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
+        "mail" : member_stats["uAfhEmail"],
+        "givenName" : member_stats["uFirstName"],
+        "displayName" : member_stats["uName"],
+        "sn" : member_stats["uLastName"],
+        "userPrincipalName" : member_stats["uNetworkLogin"] + "@AFH.pri",
+        "mobile" : member_stats["uCell"],
+        "company" : "NADA",
+        "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"],
+        "description" : officeDesc[office_loc],
+        "scriptPath" : logon_script,
+        "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com"
+    })
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=#AllAtlantaFineHomes,OU=Users,DC=AFH,DC=pri"))
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=PowerUser,OU=Users,DC=AFH,DC=pri"))
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=Docusign,OU=Users,DC=AFH,DC=pri"))
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=FreePBX Users,OU=Users,DC=AFH,DC=pri"))
+    return the_user
+
+def addUserGroups():
+    x = 0
+    groups = []
+    groups[x] = pyad.adgroup.ADGroup.from_dn("CN=#AllAtlantaFineHomes,OU=Users,DC=AFH,DC=pri")
+    x += 1
+    groups[x] = pyad.adgroup.ADGroup.from_dn("CN=#AllAtlantaFineHomes,OU=Users,DC=AFH,DC=pri")
+    x += 1
+
 # =========================================================================================
 # Set OU and group memberships of new user based on inputs [SHOULD BE A LOOP UNTIL CORRECT]
 # =========================================================================================
@@ -85,9 +118,11 @@ if office_loc == "bh":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
         logon_script = "BH_STAFF.vbs"
+        new_user = createUser()
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
         logon_script = "BH_AGENT.vbs"
+        new_user = createUser()
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
@@ -95,9 +130,11 @@ elif office_loc == "na":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
         logon_script = "NA_STAFF.VBS"
+        new_user = createUser()
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
         logon_script = "NA_AGENT.vbs"
+        new_user = createUser()
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
@@ -105,9 +142,11 @@ elif office_loc == "in":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
         logon_script = "IN_STAFF.vbs"
+        new_user = createUser()
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
         logon_script = "IN_AGENT.vbs"
+        new_user = createUser()
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
@@ -115,9 +154,11 @@ elif office_loc == "co":
     if staff_or_agent == "staff":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
         logon_script = "CB_Staff.vbs"
+        new_user = createUser()
     elif staff_or_agent == "agent":
         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
         logon_script = "CB_AGENT.vbs"
+        new_user = createUser()
     else:
         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
         quit()
@@ -126,28 +167,10 @@ else:
     quit()
     #this needs to loop back to the input prompt
 
-# ===================
-# Create user in AD!
-# ===================
-new_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],member_ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
-    "mail" : member_stats["uAfhEmail"],
-    "givenName" : member_stats["uFirstName"],
-    "displayName" : member_stats["uName"],
-    "sn" : member_stats["uLastName"],
-    "userPrincipalName" : member_stats["uNetworkLogin"] + "@AFH.pri",
-    "mobile" : member_stats["uCell"],
-    "company" : "NADA",
-    "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"],
-    "description" : officeDesc[office_loc],
-    "scriptPath" : logon_script,
-    "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com"
-})
+
 # ADD - office, department
 
 try:
     new_user.rename(member_stats["uName"],set_sAMAccountName=False)
 except:
     print(member_stats["uNetworkLogin"]+ " added successfully")
-# ADD user to groups
-
-
