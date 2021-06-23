@@ -39,6 +39,7 @@ from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
 from pyad import *
+from pyad import pyad
 
 member_stats = {}
 staff_or_agent = ""
@@ -95,19 +96,13 @@ def createUser():
         "scriptPath" : logon_script,
         "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com"
     })
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=#AllAtlantaFineHomes,OU=Users,DC=AFH,DC=pri"))
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=PowerUser,OU=Users,DC=AFH,DC=pri"))
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=Docusign,OU=Users,DC=AFH,DC=pri"))
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=FreePBX Users,OU=Users,DC=AFH,DC=pri"))
+    # #AllAtlantaFineHomes
+    # 
+    #group1 = pyad.adgroup.ADGroup.from_dn("CN=AllAtlantaFineHomes,CN=Users,DC=AFH,DC=pri")
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=PowerUser,CN=Users,DC=AFH,DC=pri"))
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=Docusign,CN=Users,DC=AFH,DC=pri"))
+    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=FreePBX Users,CN=Users,DC=AFH,DC=pri"))
     return the_user
-
-def addUserGroups():
-    x = 0
-    groups = []
-    groups[x] = pyad.adgroup.ADGroup.from_dn("CN=#AllAtlantaFineHomes,OU=Users,DC=AFH,DC=pri")
-    x += 1
-    groups[x] = pyad.adgroup.ADGroup.from_dn("CN=#AllAtlantaFineHomes,OU=Users,DC=AFH,DC=pri")
-    x += 1
 
 # =========================================================================================
 # Set OU and group memberships of new user based on inputs [SHOULD BE A LOOP UNTIL CORRECT]
@@ -166,6 +161,8 @@ else:
     print("Sorry, looks like you spelled the office abreviation wrong, please run the program again")
     quit()
     #this needs to loop back to the input prompt
+
+
 
 
 # ADD - office, department
