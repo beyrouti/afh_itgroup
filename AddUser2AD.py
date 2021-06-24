@@ -35,6 +35,7 @@ import sys
 import mysql.connector
 import csv
 import time
+import subprocess
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
@@ -48,7 +49,8 @@ member_ou = ""
 officeDesc = {"bh":"Buckhead","na":"North Atlanta","in":"Intown","co":"Cobb"}
 member_groups = []
 logon_script = ""
-new_user=""
+new_user= ""
+notValidInput = True
 
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
@@ -96,74 +98,144 @@ def createUser():
         "scriptPath" : logon_script,
         "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com"
     })
+    # Powershell:
+    # C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
     # #AllAtlantaFineHomes
-    # 
+    # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllAtlantaFineHomes -Members' + member_stats[uNetworkLogin], shell=True)
+    # PowerUser
+    # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity PowerUser -Members' + member_stats[uNetworkLogin], shell=True)
+    # Docusign
+    # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Docusign -Members' + member_stats[uNetworkLogin], shell=True)
+    # FreePBX
+    # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity FreePBX -Members' + member_stats[uNetworkLogin], shell=True)
     #group1 = pyad.adgroup.ADGroup.from_dn("CN=AllAtlantaFineHomes,CN=Users,DC=AFH,DC=pri")
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=PowerUser,CN=Users,DC=AFH,DC=pri"))
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=Docusign,CN=Users,DC=AFH,DC=pri"))
-    member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=FreePBX Users,CN=Users,DC=AFH,DC=pri"))
+    #member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=PowerUser,CN=Users,DC=AFH,DC=pri"))
+    #member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=Docusign,CN=Users,DC=AFH,DC=pri"))
+    #member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=FreePBX Users,CN=Users,DC=AFH,DC=pri"))
     return the_user
 
-# =========================================================================================
-# Set OU and group memberships of new user based on inputs [SHOULD BE A LOOP UNTIL CORRECT]
-# =========================================================================================
-staff_or_agent = input("New user [staff] or [agent]? : ").lower()
-office_loc = input("which office [bh],[na],[in],[co]? :").lower()
-if office_loc == "bh":
+# ==========================================================================
+# Set OU, create user, and add group memberships of new user based on inputs
+# ==========================================================================
+while notValidInput:
+    staff_or_agent = input("New user [staff] or [agent]? : ").lower()
+    office_loc = input("which office [bh],[na],[in],[co]? :").lower()
     if staff_or_agent == "staff":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
-        logon_script = "BH_STAFF.vbs"
-        new_user = createUser()
+        if office_loc == "bh":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
+            logon_script = "BH_STAFF.vbs"
+            new_user = createUser()
+            # BH STAFF GROUPS
+            notValidInput = False
+        elif office_loc == "na":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
+            logon_script = "NA_STAFF.VBS"
+            new_user = createUser()
+            # NA STAFF GROUPS
+            notValidInput = False
+        elif office_loc == "in":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
+            logon_script = "IN_STAFF.vbs"
+            new_user = createUser()
+            # IN STAFF GROUPS
+            notValidInput = False
+        elif office_loc == "co":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
+            logon_script = "CB_Staff.vbs"
+            new_user = createUser()
+            # CO STAFF GROUPS
+            notValidInput = False
+        else:
+            print("Sorry, looks like you spelled the office abreviation wrong, please try again")
+        #STAFF GROUPS
     elif staff_or_agent == "agent":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
-        logon_script = "BH_AGENT.vbs"
-        new_user = createUser()
+        if office_loc == "bh":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
+            logon_script = "BH_AGENT.vbs"
+            new_user = createUser()
+            # BH AGENT GROUPS
+            notValidInput = False
+        elif office_loc == "na":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
+            logon_script = "NA_AGENT.vbs"
+            new_user = createUser()
+            # NA AGENT GROUPS
+            notValidInput = False
+        elif office_loc == "in":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
+            logon_script = "IN_AGENT.vbs"
+            new_user = createUser()
+            # IN AGENT GROUPS
+            notValidInput = False
+        elif office_loc == "co":
+            member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
+            logon_script = "CB_AGENT.vbs"
+            new_user = createUser()
+            # CO AGENT GROUPS
+            notValidInput = False
+        else:
+            print("Sorry, looks like you spelled the office abreviation wrong, please try again")
+        #AGENT GROUPS
     else:
-        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-        quit()
-elif office_loc == "na":
-    if staff_or_agent == "staff":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
-        logon_script = "NA_STAFF.VBS"
-        new_user = createUser()
-    elif staff_or_agent == "agent":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
-        logon_script = "NA_AGENT.vbs"
-        new_user = createUser()
-    else:
-        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-        quit()
-elif office_loc == "in":
-    if staff_or_agent == "staff":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
-        logon_script = "IN_STAFF.vbs"
-        new_user = createUser()
-    elif staff_or_agent == "agent":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
-        logon_script = "IN_AGENT.vbs"
-        new_user = createUser()
-    else:
-        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-        quit()
-elif office_loc == "co":
-    if staff_or_agent == "staff":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
-        logon_script = "CB_Staff.vbs"
-        new_user = createUser()
-    elif staff_or_agent == "agent":
-        member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
-        logon_script = "CB_AGENT.vbs"
-        new_user = createUser()
-    else:
-        print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-        quit()
-else:
-    print("Sorry, looks like you spelled the office abreviation wrong, please run the program again")
-    quit()
-    #this needs to loop back to the input prompt
+        print("Sorry looks like you spelled 'staff' or 'agent' wrong, please try again")
 
 
 
+
+
+
+# if office_loc == "bh":
+#     if staff_or_agent == "staff":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
+#         logon_script = "BH_STAFF.vbs"
+#         new_user = createUser()
+#     elif staff_or_agent == "agent":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
+#         logon_script = "BH_AGENT.vbs"
+#         new_user = createUser()
+#     else:
+#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+#         quit()
+# elif office_loc == "na":
+#     if staff_or_agent == "staff":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
+#         logon_script = "NA_STAFF.VBS"
+#         new_user = createUser()
+#     elif staff_or_agent == "agent":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
+#         logon_script = "NA_AGENT.vbs"
+#         new_user = createUser()
+#     else:
+#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+#         quit()
+# elif office_loc == "in":
+#     if staff_or_agent == "staff":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
+#         logon_script = "IN_STAFF.vbs"
+#         new_user = createUser()
+#     elif staff_or_agent == "agent":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
+#         logon_script = "IN_AGENT.vbs"
+#         new_user = createUser()
+#     else:
+#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+#         quit()
+# elif office_loc == "co":
+#     if staff_or_agent == "staff":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
+#         logon_script = "CB_Staff.vbs"
+#         new_user = createUser()
+#     elif staff_or_agent == "agent":
+#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
+#         logon_script = "CB_AGENT.vbs"
+#         new_user = createUser()
+#     else:
+#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
+#         quit()
+# else:
+#     print("Sorry, looks like you spelled the office abreviation wrong, please run the program again")
+#     quit()
+#     #this needs to loop back to the input prompt
 
 # ADD - office, department
 
