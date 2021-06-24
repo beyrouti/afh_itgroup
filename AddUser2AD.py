@@ -50,7 +50,6 @@ staff_or_agent = ""
 office_loc = ""
 member_ou = ""
 officeDesc = {"bh":"Buckhead","na":"North Atlanta","in":"Intown","co":"Cobb"}
-member_groups = []
 logon_script = ""
 new_user= ""
 notValidInput = True
@@ -92,7 +91,6 @@ pyad.set_defaults(ldap_server="10.0.254.3", username="asterisk", password="Shit$
 # Create user function
 # =====================
 def createUser():
-    global member_groups
     the_user = pyad.aduser.ADUser.create(member_stats["uNetworkLogin"],member_ou,password="Changeme1",upn_suffix=None,enable=True,optional_attributes={
         "mail" : member_stats["uAfhEmail"],
         "givenName" : member_stats["uFirstName"],
@@ -109,22 +107,14 @@ def createUser():
         "st" : member_stats["uState"],
         "l" : member_stats["uCity"],
         "postalCode" : member_stats["uZip"]
-
     })
+    # ADD -> office, department
     # Powershell:
     # C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
-    # #AllAtlantaFineHomes
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllAtlantaFineHomes -Members' + member_stats[uNetworkLogin], shell=True)
-    # PowerUser
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity PowerUser -Members' + member_stats[uNetworkLogin], shell=True)
-    # Docusign
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Docusign -Members' + member_stats[uNetworkLogin], shell=True)
-    # FreePBX
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity FreePBX -Members' + member_stats[uNetworkLogin], shell=True)
-    #group1 = pyad.adgroup.ADGroup.from_dn("CN=AllAtlantaFineHomes,CN=Users,DC=AFH,DC=pri")
-    #member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=PowerUser,CN=Users,DC=AFH,DC=pri"))
-    #member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=Docusign,CN=Users,DC=AFH,DC=pri"))
-    #member_groups.append(pyad.adgroup.ADGroup.from_dn("CN=FreePBX Users,CN=Users,DC=AFH,DC=pri"))
     return the_user
 
 # ==========================================================================
@@ -146,17 +136,17 @@ while notValidInput:
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "NA_STAFF.VBS"
             new_user = createUser()
+            # NA STAFF GROUPS
             # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #NorthAtlantaOffice -Members' + member_stats[uNetworkLogin], shell=True)
             # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #NorthAtlantaStaff -Members' + member_stats[uNetworkLogin], shell=True)
-            # NA STAFF GROUPS
             notValidInput = False
         elif office_loc == "in":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "IN_STAFF.vbs"
             new_user = createUser()
+            # IN STAFF GROUPS
             # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllIntownOffice -Members' + member_stats[uNetworkLogin], shell=True)
             # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #IntownStaff -Members' + member_stats[uNetworkLogin], shell=True)
-            # IN STAFF GROUPS
             notValidInput = False
         elif office_loc == "co":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
@@ -214,8 +204,9 @@ while notValidInput:
     else:
         print("Sorry looks like you spelled 'staff' or 'agent' wrong, please try again")
 
-# ADD - office, department
-
+# ========================================
+# renames the user to first and last name
+# ========================================
 try:
     new_user.rename(member_stats["uName"],set_sAMAccountName=False)
 except:
