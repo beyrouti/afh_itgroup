@@ -30,6 +30,9 @@
 #    "ulicenseNum": "",
 #     uFirstName,
 #     uLastName,
+#     uState,
+#     uZip,
+#     uCity
 
 import sys
 import mysql.connector
@@ -51,6 +54,7 @@ member_groups = []
 logon_script = ""
 new_user= ""
 notValidInput = True
+cityStateZip = []
 
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
@@ -74,6 +78,10 @@ member_stats['uAfhEmail'] = member_stats['uAfhEmail'] + '@atlantafinehomes.com'
 fp.close()
 member_stats["uFirstName"] = member_stats["uName"].split(" ")[0]
 member_stats["uLastName"] = member_stats['uName'].split(" ")[len(member_stats['uName'].split(" ")) -1]
+cityStateZip = member_stats["uHomeAddress2"].split()
+member_stats["uZip"] = cityStateZip[len(cityStateZip) - 1]
+member_stats["uState"] = "GA"
+member_stats["uCity"] = cityStateZip[0] #check for commas
 
 # ===========================================
 # Sets default credential information for AD
@@ -96,7 +104,12 @@ def createUser():
         "proxyAddresses" : "SMTP:" + member_stats["uAfhEmail"],
         "description" : officeDesc[office_loc],
         "scriptPath" : logon_script,
-        "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com"
+        "title" : member_stats["uFirstName"] + "." + member_stats["uLastName"] + "@sothebysrealty.com",
+        "streetAddress" : member_stats["uHomeAddress1"],
+        "st" : member_stats["uState"],
+        "l" : member_stats["uCity"],
+        "postalCode" : member_stats["uZip"]
+
     })
     # Powershell:
     # C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
@@ -126,17 +139,23 @@ while notValidInput:
             logon_script = "BH_STAFF.vbs"
             new_user = createUser()
             # BH STAFF GROUPS
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #BuckheadOffice -Members' + member_stats[uNetworkLogin], shell=True)
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #BuckheadStaff -Members' + member_stats[uNetworkLogin], shell=True)
             notValidInput = False
         elif office_loc == "na":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "NA_STAFF.VBS"
             new_user = createUser()
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #NorthAtlantaOffice -Members' + member_stats[uNetworkLogin], shell=True)
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #NorthAtlantaStaff -Members' + member_stats[uNetworkLogin], shell=True)
             # NA STAFF GROUPS
             notValidInput = False
         elif office_loc == "in":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "IN_STAFF.vbs"
             new_user = createUser()
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllIntownOffice -Members' + member_stats[uNetworkLogin], shell=True)
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #IntownStaff -Members' + member_stats[uNetworkLogin], shell=True)
             # IN STAFF GROUPS
             notValidInput = False
         elif office_loc == "co":
@@ -144,98 +163,56 @@ while notValidInput:
             logon_script = "CB_Staff.vbs"
             new_user = createUser()
             # CO STAFF GROUPS
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #CobbStaff -Members' + member_stats[uNetworkLogin], shell=True)
             notValidInput = False
         else:
             print("Sorry, looks like you spelled the office abreviation wrong, please try again")
         #STAFF GROUPS
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity AFH Staff -Members' + member_stats[uNetworkLogin], shell=True)
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Accounting -Members' + member_stats[uNetworkLogin], shell=True)
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Brokerwolf -Members' + member_stats[uNetworkLogin], shell=True)
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Listings -Members' + member_stats[uNetworkLogin], shell=True)
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Administrators -Members' + member_stats[uNetworkLogin], shell=True)
+        # Should get user input for above staff groups y/n
     elif staff_or_agent == "agent":
         if office_loc == "bh":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "BH_AGENT.vbs"
             new_user = createUser()
             # BH AGENT GROUPS
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #BuckheadOffice -Members' + member_stats[uNetworkLogin], shell=True)
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #BuckheadAgents -Members' + member_stats[uNetworkLogin], shell=True)
             notValidInput = False
         elif office_loc == "na":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "NA_AGENT.vbs"
             new_user = createUser()
             # NA AGENT GROUPS
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #NorthAtlantaOffice -Members' + member_stats[uNetworkLogin], shell=True)
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #NorthAtlantaAgents -Members' + member_stats[uNetworkLogin], shell=True)
             notValidInput = False
         elif office_loc == "in":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "IN_AGENT.vbs"
             new_user = createUser()
             # IN AGENT GROUPS
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllIntownOffice -Members' + member_stats[uNetworkLogin], shell=True)
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #IntownAgents -Members' + member_stats[uNetworkLogin], shell=True)
             notValidInput = False
         elif office_loc == "co":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "CB_AGENT.vbs"
             new_user = createUser()
             # CO AGENT GROUPS
+            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #CobbAgents -Members' + member_stats[uNetworkLogin], shell=True)
             notValidInput = False
         else:
             print("Sorry, looks like you spelled the office abreviation wrong, please try again")
         #AGENT GROUPS
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AtlantaFineHomesAgents -Members' + member_stats[uNetworkLogin], shell=True)
+        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity AFH Agents -Members' + member_stats[uNetworkLogin], shell=True)
     else:
         print("Sorry looks like you spelled 'staff' or 'agent' wrong, please try again")
-
-
-
-
-
-
-# if office_loc == "bh":
-#     if staff_or_agent == "staff":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
-#         logon_script = "BH_STAFF.vbs"
-#         new_user = createUser()
-#     elif staff_or_agent == "agent":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
-#         logon_script = "BH_AGENT.vbs"
-#         new_user = createUser()
-#     else:
-#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-#         quit()
-# elif office_loc == "na":
-#     if staff_or_agent == "staff":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
-#         logon_script = "NA_STAFF.VBS"
-#         new_user = createUser()
-#     elif staff_or_agent == "agent":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
-#         logon_script = "NA_AGENT.vbs"
-#         new_user = createUser()
-#     else:
-#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-#         quit()
-# elif office_loc == "in":
-#     if staff_or_agent == "staff":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
-#         logon_script = "IN_STAFF.vbs"
-#         new_user = createUser()
-#     elif staff_or_agent == "agent":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
-#         logon_script = "IN_AGENT.vbs"
-#         new_user = createUser()
-#     else:
-#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-#         quit()
-# elif office_loc == "co":
-#     if staff_or_agent == "staff":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
-#         logon_script = "CB_Staff.vbs"
-#         new_user = createUser()
-#     elif staff_or_agent == "agent":
-#         member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
-#         logon_script = "CB_AGENT.vbs"
-#         new_user = createUser()
-#     else:
-#         print("Sorry looks like you spelled [staff] or [agent] wrong, please run the program again")
-#         quit()
-# else:
-#     print("Sorry, looks like you spelled the office abreviation wrong, please run the program again")
-#     quit()
-#     #this needs to loop back to the input prompt
 
 # ADD - office, department
 
