@@ -113,7 +113,7 @@ def createUser():
     subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AllAtlantaFineHomes' -Members " + member_stats["uNetworkLogin"], shell=True)
     subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'PowerUser' -Members " + member_stats["uNetworkLogin"], shell=True)
     subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Docusign' -Members " + member_stats["uNetworkLogin"], shell=True)
-    subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'FreePBX' -Members " + member_stats["uNetworkLogin"], shell=True)
+    subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'FreePBX Users' -Members " + member_stats["uNetworkLogin"], shell=True)
     return the_user
 
 # ==========================================================================
@@ -144,7 +144,7 @@ while notValidInput:
             logon_script = "IN_STAFF.vbs"
             new_user = createUser()
             # IN STAFF GROUPS
-            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AllIntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
+            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownStaff' -Members " + member_stats["uNetworkLogin"], shell=True)
             notValidInput = False
         elif office_loc == "co":
@@ -185,7 +185,7 @@ while notValidInput:
             logon_script = "IN_AGENT.vbs"
             new_user = createUser()
             # IN AGENT GROUPS
-            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AllIntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
+            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownAgents' -Members " + member_stats["uNetworkLogin"], shell=True)
             notValidInput = False
         elif office_loc == "co":
