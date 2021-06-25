@@ -35,7 +35,6 @@
 #     uCity
 
 import sys
-import mysql.connector
 import csv
 import time
 import subprocess
@@ -111,7 +110,7 @@ def createUser():
     # ADD -> office, department
     # Powershell:
     # C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
-    # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllAtlantaFineHomes -Members' + member_stats[uNetworkLogin], shell=True)
+    subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AllAtlantaFineHomes' -Members " + member_stats["uNetworkLogin"], shell=True)
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity PowerUser -Members' + member_stats[uNetworkLogin], shell=True)
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity Docusign -Members' + member_stats[uNetworkLogin], shell=True)
     # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity FreePBX -Members' + member_stats[uNetworkLogin], shell=True)
