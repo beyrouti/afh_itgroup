@@ -107,7 +107,7 @@ def createUser():
         "l" : member_stats["uCity"],
         "postalCode" : member_stats["uZip"]
     })
-    # ADD -> office, department
+    # ADD -> office, department, extension, office phone (if designated)
     # Powershell:
     # C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
     subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AllAtlantaFineHomes' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -209,4 +209,9 @@ while notValidInput:
 try:
     new_user.rename(member_stats["uName"],set_sAMAccountName=False)
 except:
-    print(member_stats["uNetworkLogin"]+ " added successfully")
+    print(member_stats["uNetworkLogin"]+ " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent)
+
+# =========================================
+# runs the .bat file to add user to egnyte
+# =========================================
+subprocess.call(r'C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit/run.bat')
