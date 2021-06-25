@@ -185,9 +185,7 @@ while notValidInput:
             logon_script = "IN_AGENT.vbs"
             new_user = createUser()
             # IN AGENT GROUPS
-            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AllIntownOffice -Members' + member_stats[uNetworkLogin], shell=True)
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AllIntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
-            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #IntownAgents -Members' + member_stats[uNetworkLogin], shell=True)
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownAgents' -Members " + member_stats["uNetworkLogin"], shell=True)
             notValidInput = False
         elif office_loc == "co":
@@ -195,13 +193,13 @@ while notValidInput:
             logon_script = "CB_AGENT.vbs"
             new_user = createUser()
             # CO AGENT GROUPS
-            # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #CobbAgents -Members' + member_stats[uNetworkLogin], shell=True)
+            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#CobbAgents' -Members " + member_stats["uNetworkLogin"], shell=True)
             notValidInput = False
         else:
             print("Sorry, looks like you spelled the office abreviation wrong, please try again")
         #AGENT GROUPS
-        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity #AtlantaFineHomesAgents -Members' + member_stats[uNetworkLogin], shell=True)
-        # subprocess.call('C:\Windows\System32\powershell.exe Add-ADGroupMember -Identity AFH Agents -Members' + member_stats[uNetworkLogin], shell=True)
+        subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AtlantaFineHomesAgents' -Members " + member_stats["uNetworkLogin"], shell=True)
+        subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'AFH Agents' -Members " + member_stats["uNetworkLogin"], shell=True)
     else:
         print("Sorry looks like you spelled 'staff' or 'agent' wrong, please try again")
 
