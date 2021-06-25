@@ -38,7 +38,7 @@ import sys
 import csv
 import time
 import subprocess
-import os
+import win32comext.shell.shell as shell
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
@@ -54,6 +54,7 @@ logon_script = ""
 new_user= ""
 notValidInput = True
 cityStateZip = []
+runBatchFile = "cd C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit && run.bat"
 
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
@@ -215,4 +216,5 @@ except:
 # =========================================
 # runs the .bat file to add user to egnyte
 # =========================================
-os.system("C:\Windows\System32\cmd.exe /c C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit/run.bat")
+#os.system("C:\Windows\System32\cmd.exe /c C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit/run.bat")
+shell.ShellExecuteEx(lpVerb='runas', lpFile='cmd.exe', lpParameters='/c '+runBatchFile)
