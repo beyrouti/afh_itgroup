@@ -211,10 +211,16 @@ while notValidInput:
 try:
     new_user.rename(member_stats["uName"],set_sAMAccountName=False)
 except:
-    print(member_stats["uNetworkLogin"]+ " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent)
+    print(member_stats["uNetworkLogin"] + " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent + "in AD")
+else:
+    print(member_stats["uNetworkLogin"] + " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent + "in AD")
 
 # =========================================
 # runs the .bat file to add user to egnyte
 # =========================================
-#os.system("C:\Windows\System32\cmd.exe /c C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit/run.bat")
-shell.ShellExecuteEx(lpVerb='runas', lpFile='cmd.exe', lpParameters='/c '+runBatchFile)
+try:
+    shell.ShellExecuteEx(lpVerb='runas', lpFile='cmd.exe', lpParameters='/c '+ runBatchFile)
+except:
+    print("There was an error running the egnyte run.bat file")
+else:
+    print(member_stats["uNetworkLogin"] + " added successfully to egnyte")
