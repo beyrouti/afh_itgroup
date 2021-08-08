@@ -55,6 +55,7 @@ new_user= ""
 notValidInput = True
 cityStateZip = []
 runBatchFile = "cd C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit && run.bat"
+member_department = ""
 
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
@@ -107,7 +108,8 @@ def createUser():
         "streetAddress" : member_stats["uHomeAddress1"],
         "st" : member_stats["uState"],
         "l" : member_stats["uCity"],
-        "postalCode" : member_stats["uZip"]
+        "postalCode" : member_stats["uZip"],
+        "department" : member_department
     })
     # ADD -> office, department, extension, office phone (if designated)
     # Powershell:
@@ -128,6 +130,7 @@ while notValidInput:
         if office_loc == "bh":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "BH_STAFF.vbs"
+            member_department = "E0F441CF-C3C7-4299-8914-B08E15C26E5A"
             new_user = createUser()
             # BH STAFF GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#BuckheadOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -136,6 +139,7 @@ while notValidInput:
         elif office_loc == "na":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "NA_STAFF.VBS"
+            member_department = "CD9DFF50-3618-45D9-A00C-773573346F5A"
             new_user = createUser()
             # NA STAFF GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#NorthAtlantaOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -144,6 +148,7 @@ while notValidInput:
         elif office_loc == "in":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "IN_STAFF.vbs"
+            member_department = "C80FAA63-9AD4-4573-B33D-42EEDFBD0BA8"
             new_user = createUser()
             # IN STAFF GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -152,6 +157,7 @@ while notValidInput:
         elif office_loc == "co":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Staff,OU=AFH Staff,DC=AFH,DC=pri")
             logon_script = "CB_Staff.vbs"
+            member_department = "134A2C4D-5D09-4563-BA8E-CE276556B8C2"
             new_user = createUser()
             # CO STAFF GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#CobbStaff' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -169,6 +175,7 @@ while notValidInput:
         if office_loc == "bh":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "BH_AGENT.vbs"
+            member_department = "E0F441CF-C3C7-4299-8914-B08E15C26E5A"
             new_user = createUser()
             # BH AGENT GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#BuckheadOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -177,6 +184,7 @@ while notValidInput:
         elif office_loc == "na":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=NA Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "NA_AGENT.vbs"
+            member_department = "CD9DFF50-3618-45D9-A00C-773573346F5A"
             new_user = createUser()
             # NA AGENT GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#NorthAtlantaOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -185,6 +193,7 @@ while notValidInput:
         elif office_loc == "in":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=IN Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "IN_AGENT.vbs"
+            member_department = "C80FAA63-9AD4-4573-B33D-42EEDFBD0BA8"
             new_user = createUser()
             # IN AGENT GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#IntownOffice' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -193,6 +202,7 @@ while notValidInput:
         elif office_loc == "co":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=Cobb Agents,OU=AFH Agents,DC=AFH,DC=pri")
             logon_script = "CB_AGENT.vbs"
+            member_department = "134A2C4D-5D09-4563-BA8E-CE276556B8C2"
             new_user = createUser()
             # CO AGENT GROUPS
             subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#CobbAgents' -Members " + member_stats["uNetworkLogin"], shell=True)
@@ -211,9 +221,9 @@ while notValidInput:
 try:
     new_user.rename(member_stats["uName"],set_sAMAccountName=False)
 except:
-    print(member_stats["uNetworkLogin"] + " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent + "in AD")
+    print(member_stats["uNetworkLogin"] + " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent + " in AD")
 else:
-    print(member_stats["uNetworkLogin"] + " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent + "in AD")
+    print(member_stats["uNetworkLogin"] + " added successfully as a " + officeDesc[office_loc] + " " + staff_or_agent + " in AD")
 
 # =========================================
 # runs the .bat file to add user to egnyte
