@@ -57,6 +57,7 @@ notValidInput = True
 cityStateZip = []
 runBatchFile = "pushd c:\egnyte_win32_ad_kit_4.15.1_r18\egnyte_win32_ds_kit && run.bat"
 member_department = ""
+user_input = ""
 
 # =========================================================================================================
 # Parses the NSF data into a dictonary member_stats using pdfminer
@@ -81,9 +82,9 @@ fp.close()
 member_stats["uFirstName"] = member_stats["uName"].split(" ")[0]
 member_stats["uLastName"] = member_stats['uName'].split(" ")[len(member_stats['uName'].split(" ")) -1]
 cityStateZip = member_stats["uHomeAddress2"].split()
-member_stats["uZip"] = cityStateZip[len(cityStateZip) - 1]
+member_stats["uZip"] = cityStateZip[len(cityStateZip) - 1].translate(str.maketrans('', '', string.punctuation))
 member_stats["uState"] = "GA"
-member_stats["uCity"] = cityStateZip[0].translate(None, string.punctuation)
+member_stats["uCity"] = cityStateZip[0].translate(str.maketrans('', '', string.punctuation))
 
 # ===========================================
 # Sets default credential information for AD
@@ -167,11 +168,16 @@ while notValidInput:
             print("Sorry, looks like you spelled the office abreviation wrong, please try again")
         #STAFF GROUPS
         subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'AFH Staff' -Members " + member_stats["uNetworkLogin"], shell=True)
-        subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Accounting' -Members " + member_stats["uNetworkLogin"], shell=True)
+        user_input = input("Add new Staff member to Accounting group? (y/n): ")
+        if user_input == "y" :
+            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Accounting' -Members " + member_stats["uNetworkLogin"], shell=True)
+        user_input = input("Add new Staff member to Brokerwolf group? (y/n): ")
         subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Brokerwolf' -Members " + member_stats["uNetworkLogin"], shell=True)
-        subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Listings' -Members " + member_stats["uNetworkLogin"], shell=True)
-        subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Administrators' -Members " + member_stats["uNetworkLogin"], shell=True)
-        # Should get user input for above staff groups y/n
+        if user_input == "y" :
+            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Listings' -Members " + member_stats["uNetworkLogin"], shell=True)
+        user_input = input("Add new Staff member to Administrators group? (y/n): ")
+        if user_input == "y" :
+            subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'Administrators' -Members " + member_stats["uNetworkLogin"], shell=True)
     elif staff_or_agent == "agent":
         if office_loc == "bh":
             member_ou = pyad.adcontainer.ADContainer.from_dn("OU=BH Agents,OU=AFH Agents,DC=AFH,DC=pri")
