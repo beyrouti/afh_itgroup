@@ -44,6 +44,7 @@ from pdfminer.pdfdocument import PDFDocument
 from pdfminer.pdftypes import resolve1
 from pyad import *
 from pyad import pyad
+import string
 
 member_stats = {}
 staff_or_agent = ""
@@ -82,7 +83,7 @@ member_stats["uLastName"] = member_stats['uName'].split(" ")[len(member_stats['u
 cityStateZip = member_stats["uHomeAddress2"].split()
 member_stats["uZip"] = cityStateZip[len(cityStateZip) - 1]
 member_stats["uState"] = "GA"
-member_stats["uCity"] = cityStateZip[0] #check for commas
+member_stats["uCity"] = cityStateZip[0].translate(None, string.punctuation)
 
 # ===========================================
 # Sets default credential information for AD
