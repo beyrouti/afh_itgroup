@@ -54,7 +54,7 @@ logon_script = ""
 new_user= ""
 notValidInput = True
 cityStateZip = []
-runBatchFile = "cd C:/egnyte_win32_ad_kit_4.15.1_r18/egnyte_win32_ds_kit && run.bat"
+runBatchFile = "pushd c:\egnyte_win32_ad_kit_4.15.1_r18\egnyte_win32_ds_kit && run.bat"
 member_department = ""
 
 # =========================================================================================================
