@@ -219,6 +219,7 @@ while notValidInput:
         #AGENT GROUPS
         subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity '#AtlantaFineHomesAgents' -Members " + member_stats["uNetworkLogin"], shell=True)
         subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Add-ADGroupMember -Identity 'AFH Agents' -Members " + member_stats["uNetworkLogin"], shell=True)
+        subprocess.call("C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe Set-ADUser -Identity " + member_stats["uNetworkLogin"] + " -ChangePasswordAtLogon $true", shell=True)
     else:
         print("Sorry looks like you spelled 'staff' or 'agent' wrong, please try again")
 
